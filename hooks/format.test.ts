@@ -10,6 +10,7 @@ test('formats durations', async () => {
 
 test('masks the account to two letters each side', async () => {
   expect(maskAccount('alice@example.com')).toBe('al**@ex**')
+  expect(maskAccount('api key')).toBe('api key')
 })
 
 test('reads CI state from the PR and its check rollup', async () => {

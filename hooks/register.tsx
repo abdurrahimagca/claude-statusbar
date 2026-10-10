@@ -38,6 +38,14 @@ async function refreshSession($: EngineInterface) {
   })
 }
 
+// Asks the CLI, which runs with this session's env, so an API-key or
+// CLAUDE_CONFIG_DIR login reports itself rather than ~/.claude.json's.
+async function refreshAccount($: EngineInterface) {
+  const json = await run($, ['claude', 'auth', 'status'])
+  const auth = json ? (JSON.parse(json) as { email?: string | null; authMethod?: string }) : undefined
+  await patch($, { account: auth?.email ?? auth?.authMethod?.replace('_', ' ') })
+}
+
 async function refreshPr($: EngineInterface) {
   const json = await run($, ['gh', 'pr', 'view', '--json', 'number,state,statusCheckRollup'])
   const pr = json ? (JSON.parse(json) as { number: number; state: string; statusCheckRollup: [] }) : undefined
@@ -51,12 +59,11 @@ function safely(work: Promise<unknown>) {
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     $.ui.status(undefined)
-    const account = await run($, ['sh', '-c', 'jq -r ".oauthAccount.emailAddress // empty" "$HOME/.claude.json"'])
-    await patch($, { account })
     $.clock.every(15_000, () => void safely(refreshSession($)))
     $.clock.every(60_000, () => void safely(refreshPr($)))
     void safely(refreshSession($))
     void safely(refreshPr($))
+    void safely(refreshAccount($))
     return next(e)
   })
 
@@ -82,6 +89,8 @@ export const register: Register = on => {
     const result = await next(e)
     void safely(refreshSession($))
     void safely(refreshPr($))
+    // A /login mid-session shows up after the next turn.
+    void safely(refreshAccount($))
     return result
   })
 

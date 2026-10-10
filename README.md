@@ -12,7 +12,7 @@ A Claude Code mod that turns the hint line under the prompt into a compact statu
 | `ctx 16%` | Context window used |
 | `rlh 42%, 1h20m` | 5-hour rate limit used, and time until it resets |
 | `⏳58m` | Estimated prompt-cache time left (`⏳cold` once expired) |
-| `al**@ex**` | Logged-in account, masked |
+| `al**@ex**` | Account this session is logged in with (from `claude auth status`), masked; `api key` for API-key logins |
 | `my-repo \| fix/otp` | Git repo and branch |
 | `#1389` | The branch's PR, colored by CI: green pass, yellow running, red failed, purple merged |
 
@@ -26,7 +26,7 @@ The row wraps at the `|` separators on narrow terminals.
 
 Answer `y` to add the marketplace, then pick a scope. If you use a `statusLine` command in your settings, remove it to avoid two status lines.
 
-Requirements: `git`, `jq` (account), and an authenticated `gh` CLI (PR and CI).
+Requirements: `git` and an authenticated `gh` CLI (PR and CI).
 
 ## Limits
 

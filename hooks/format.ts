@@ -9,6 +9,7 @@ export const duration = (ms: number): string => {
 
 // "alice@example.com" -> "al**@ex**"
 export const maskAccount = (email: string): string => {
+  if (!email.includes('@')) return email
   const [local = '', domain = ''] = email.split('@')
   return `${local.slice(0, 2)}**@${domain.slice(0, 2)}**`
 }
