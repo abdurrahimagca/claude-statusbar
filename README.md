@@ -3,12 +3,13 @@
 A Claude Code mod that turns the hint line under the prompt into a compact status row:
 
 ```
-⏵⏵ auto mode on · IN ctx 16% | rlh 42%, 1h20m | ⏳58m | al**@ex** | my-repo | fix/otp #1389
+⏵⏵ auto mode on · IN Opus 5.5 hi | ctx 16% | rlh 42%, 1h20m | ⏳58m | al**@ex** | my-repo | fix/otp #1389
 ```
 
 | Part | Meaning |
 | --- | --- |
 | `IN` | Vim mode (`-- INSERT --` shortened); "shift+tab to cycle" is dropped |
+| `Opus 5.5 hi` | Current model and effort (`lo`, `med`, `hi`, `xhi`, `max`; shown after the first reply) |
 | `ctx 16%` | Context window used |
 | `rlh 42%, 1h20m` | 5-hour rate limit used, and time until it resets |
 | `⏳58m` | Estimated prompt-cache time left (`⏳cold` once expired) |

@@ -2,6 +2,8 @@ export type Ci = 'pass' | 'pending' | 'fail' | 'merged'
 
 export type Snapshot = {
   ctxPercent?: number
+  model?: string
+  effort?: string
   ratePercent?: number
   rateResetsInMs?: number
   cacheLeftMs?: number

@@ -28,9 +28,23 @@ export const ciState = (prState: string, checks: readonly Check[]): Ci | undefin
   return 'pending'
 }
 
+// "claude-opus-5-5[1m]" or "Opus 5.5 (1M context)" -> "Opus 5.5"
+export const shortModel = (model: string): string => {
+  const id = model.match(/^claude-([a-z]+)-(\d+)-(\d+)/i)
+  if (!id) return model.replace(/\s*\(\w+ context\)/i, '')
+  const [, family = '', major, minor] = id
+  return `${family.charAt(0).toUpperCase()}${family.slice(1)} ${major}.${minor}`
+}
+
+const EFFORT: Record<string, string> = { low: 'lo', medium: 'med', high: 'hi', xhigh: 'xhi', max: 'max' }
+
+export const shortEffort = (effort: string | number): string =>
+  typeof effort === 'number' ? String(effort) : (EFFORT[effort] ?? effort)
+
 // Display order; the line wraps only between items.
 export const items = (s: Snapshot): string[] => {
   const out: string[] = []
+  if (s.model) out.push([shortModel(s.model), s.effort].filter(Boolean).join(' '))
   if (s.ctxPercent !== undefined) out.push(`ctx ${Math.round(s.ctxPercent)}%`)
   if (s.ratePercent !== undefined) {
     const reset = s.rateResetsInMs && s.rateResetsInMs > 0 ? `, ${duration(s.rateResetsInMs)}` : ''

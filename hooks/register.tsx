@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import type { Snapshot } from '../types'
-import { ciState, items, splitHint } from './format'
+import { ciState, items, shortEffort, splitHint } from './format'
 
 const snapshot = atom({ plugin: 'statusbar', key: 'snapshot' } as const, {})
 // No API reports the TTL except model-switch hooks; until one fires, assume the
@@ -21,8 +21,9 @@ async function patch($: EngineInterface, fields: Partial<Snapshot>) {
 
 async function refreshSession($: EngineInterface) {
   const now = await $.clock.now()
-  const [usage, git, clock] = await Promise.all([
+  const [usage, model, git, clock] = await Promise.all([
     $.session.usage(),
+    $.session.model(),
     run($, ['git', 'rev-parse', '--show-toplevel', '--abbrev-ref', 'HEAD']),
     read($, cache),
   ])
@@ -30,6 +31,7 @@ async function refreshSession($: EngineInterface) {
   const [top, branch] = git?.split('\n') ?? []
   await patch($, {
     ctxPercent: usage.context.percent,
+    model,
     ratePercent: fiveHour?.percentUsed,
     rateResetsInMs: fiveHour?.resetsAt ? Date.parse(fiveHour.resetsAt) - now : undefined,
     cacheLeftMs: clock.lastAt === undefined ? undefined : clock.lastAt + clock.ttlMs - now,
@@ -68,6 +70,10 @@ export const register: Register = on => {
   })
 
   on('turn.step', async function* ($, e, next) {
+    // No API reports the effort; the main loop's requests carry it.
+    if (e.agentId === undefined) {
+      await patch($, { effort: e.effort === undefined ? undefined : shortEffort(e.effort) })
+    }
     const result = yield* next(e)
     const usage = result.usage
     const touchedCache = usage !== null && usage.cache_read_input_tokens + usage.cache_creation_input_tokens > 0

@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import { ciState, duration, items, maskAccount, splitHint } from './format'
+import { ciState, duration, items, maskAccount, shortEffort, shortModel, splitHint } from './format'
 
 test('formats durations', async () => {
   expect(duration(30_000)).toBe('<1m')
@@ -22,13 +22,25 @@ test('reads CI state from the PR and its check rollup', async () => {
 })
 
 const FULL = {
-  ctxPercent: 16.2, ratePercent: 42, rateResetsInMs: 80 * 60_000, cacheLeftMs: 58 * 60_000,
+  ctxPercent: 16.2, model: 'claude-opus-5-5[1m]', effort: 'hi', ratePercent: 42, rateResetsInMs: 80 * 60_000, cacheLeftMs: 58 * 60_000,
   account: 'alice@example.com', repo: 'my-repo', branch: 'fix/otp', pr: 1389,
 }
 
+test('shortens model ids and display names', async () => {
+  expect(shortModel('claude-opus-5-5[1m]')).toBe('Opus 5.5')
+  expect(shortModel('claude-sonnet-5-5')).toBe('Sonnet 5.5')
+  expect(shortModel('Opus 5.5 (1M context)')).toBe('Opus 5.5')
+})
+
+test('shortens effort levels', async () => {
+  expect(shortEffort('medium')).toBe('med')
+  expect(shortEffort('xhigh')).toBe('xhi')
+  expect(shortEffort(32)).toBe('32')
+})
+
 test('lists every part in order', async () => {
   expect(items(FULL)).toEqual([
-    'ctx 16%', 'rlh 42%, 1h20m', '⏳58m', 'al**@ex**', 'my-repo', 'fix/otp',
+    'Opus 5.5 hi', 'ctx 16%', 'rlh 42%, 1h20m', '⏳58m', 'al**@ex**', 'my-repo', 'fix/otp',
   ])
   expect(items({ ctxPercent: 3, cacheLeftMs: -1 })).toEqual(['ctx 3%', '⏳cold'])
 })
