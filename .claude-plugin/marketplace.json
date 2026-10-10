@@ -1,0 +1,6 @@
+{
+  "name": "claude-statusbar",
+  "description": "A compact Claude Code status row: context, rate limit, cache countdown, account, repo, branch, PR and CI",
+  "owner": { "name": "Abdurrahim Ağca" },
+  "plugins": [{ "name": "statusbar", "source": "./" }]
+}

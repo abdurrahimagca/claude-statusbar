@@ -1,0 +1,1 @@
+{ "name": "statusbar", "version": "0.2.0", "author": { "name": "Abdurrahim Ağca" }, "description": "One thin row above the prompt: context, rate limit, prompt-cache countdown, account, repo, branch, PR and CI", "types": "./types/index.d.ts" }
